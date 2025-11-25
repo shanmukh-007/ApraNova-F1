@@ -344,3 +344,9 @@ credentials.json
 !docker-compose.*.yml
 !.dockerignore
 
+
+# Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfvars

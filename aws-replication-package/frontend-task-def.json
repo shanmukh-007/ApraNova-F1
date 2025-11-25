@@ -1,0 +1,43 @@
+{
+  "family": "frontend",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "256",
+  "memory": "512",
+  "executionRoleArn": "arn:aws:iam::322388074242:role/ecsTaskExecutionRole",
+  "containerDefinitions": [
+    {
+      "name": "frontend",
+      "image": "322388074242.dkr.ecr.us-east-1.amazonaws.com/apranova/frontend:latest",
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 3000,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        {
+          "name": "NEXT_PUBLIC_API_URL",
+          "value": "http://production-alb-1841167835.us-east-1.elb.amazonaws.com"
+        },
+        {
+          "name": "BACKEND_URL",
+          "value": "http://production-alb-1841167835.us-east-1.elb.amazonaws.com"
+        },
+        {
+          "name": "NODE_ENV",
+          "value": "production"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/frontend",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
+    }
+  ]
+}

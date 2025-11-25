@@ -1,0 +1,47 @@
+{
+  "family": "backend",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "512",
+  "memory": "1024",
+  "executionRoleArn": "arn:aws:iam::322388074242:role/ecsTaskExecutionRole",
+  "containerDefinitions": [
+    {
+      "name": "backend",
+      "image": "322388074242.dkr.ecr.us-east-1.amazonaws.com/apranova/backend:latest",
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 8000,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        {
+          "name": "DATABASE_URL",
+          "value": "postgresql://apranova_admin:ApraNova2024SecurePass!@production-apranova-db.cqzg84imcy8x.us-east-1.rds.amazonaws.com:5432/apranova_db"
+        },
+        {
+          "name": "REDIS_URL",
+          "value": "redis://production-redis.ca9eju.0001.use1.cache.amazonaws.com:6379/0"
+        },
+        {
+          "name": "DEBUG",
+          "value": "False"
+        },
+        {
+          "name": "ALLOWED_HOSTS",
+          "value": "production-alb-1841167835.us-east-1.elb.amazonaws.com,localhost,10.0.11.43,10.0.11.241,*"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/backend",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
+    }
+  ]
+}
