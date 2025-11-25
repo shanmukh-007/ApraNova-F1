@@ -1,0 +1,88 @@
+# Auto detect text files and perform LF normalization
+* text=auto eol=lf
+
+# Shell scripts must use LF
+*.sh text eol=lf
+
+# Docker files must use LF
+Dockerfile text eol=lf
+*.dockerfile text eol=lf
+.dockerignore text eol=lf
+
+# YAML files must use LF
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# Makefile must use LF
+Makefile text eol=lf
+makefile text eol=lf
+
+# Python files
+*.py text eol=lf
+*.pyx text eol=lf
+*.pyd binary
+*.pyc binary
+*.pyo binary
+
+# JavaScript/TypeScript files
+*.js text eol=lf
+*.jsx text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.mjs text eol=lf
+*.cjs text eol=lf
+
+# JSON files
+*.json text eol=lf
+
+# Markdown files
+*.md text eol=lf
+*.markdown text eol=lf
+
+# Configuration files
+*.conf text eol=lf
+*.config text eol=lf
+*.ini text eol=lf
+*.toml text eol=lf
+.env* text eol=lf
+.editorconfig text eol=lf
+.gitignore text eol=lf
+.gitattributes text eol=lf
+
+# CSS/SCSS files
+*.css text eol=lf
+*.scss text eol=lf
+*.sass text eol=lf
+*.less text eol=lf
+
+# HTML/XML files
+*.html text eol=lf
+*.htm text eol=lf
+*.xml text eol=lf
+*.svg text eol=lf
+
+# PowerShell scripts (can use CRLF on Windows)
+*.ps1 text eol=crlf
+*.psm1 text eol=crlf
+*.psd1 text eol=crlf
+
+# Batch files (must use CRLF on Windows)
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.tar binary
+*.gz binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
+*.otf binary
+

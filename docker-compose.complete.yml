@@ -1,0 +1,153 @@
+# ============================================
+# ApraNova Complete Docker Compose Configuration
+# ============================================
+# This file orchestrates all services including:
+# - Backend (Django REST API with Docker-in-Docker)
+# - Frontend (Next.js)
+# - Database (PostgreSQL)
+# - Cache (Redis)
+# - Code-Server (for student workspaces)
+# ============================================
+
+services:
+  # ============================================
+  # Backend - Django REST API with Docker-in-Docker
+  # ============================================
+  
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: apranova_backend
+    restart: unless-stopped
+    # Note: Running as root for Docker-in-Docker access
+    # In production, consider using Docker socket proxy for better security
+    volumes:
+      - ./backend:/app
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+      - aprovova_reports:/app/APROVOVA
+      - workspace_data:/app/workspaces  # Workspace storage
+      - /var/run/docker.sock:/var/run/docker.sock  # Docker-in-Docker
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - WORKSPACE_BASE_PATH=/app/workspaces
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - apranova_network
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ============================================
+  # Frontend - Next.js Application
+  # ============================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+        - NEXT_PUBLIC_APP_NAME=ApraNova
+        - NEXT_PUBLIC_APP_URL=http://localhost:3000
+    container_name: apranova_frontend
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_APP_NAME=ApraNova
+      - NEXT_PUBLIC_APP_URL=http://localhost:3000
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+      - BACKEND_URL=http://backend:8000
+    depends_on:
+      - backend
+    networks:
+      - apranova_network
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ============================================
+  # Database - PostgreSQL
+  # ============================================
+  db:
+    image: postgres:14-alpine
+    container_name: apranova_db
+    restart: unless-stopped
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - apranova_network
+    ports:
+      - "5433:5432"
+
+  # ============================================
+  # Cache - Redis
+  # ============================================
+  redis:
+    image: redis:7-alpine
+    container_name: apranova_redis
+    restart: unless-stopped
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - apranova_network
+    ports:
+      - "6380:6379"
+
+# ============================================
+# Networks
+# ============================================
+networks:
+  apranova_network:
+    driver: bridge
+    name: apranova_network
+
+# ============================================
+# Volumes
+# ============================================
+volumes:
+  postgres_data:
+    name: apranova_postgres_data
+  redis_data:
+    name: apranova_redis_data
+  static_volume:
+    name: apranova_static_volume
+  media_volume:
+    name: apranova_media_volume
+  aprovova_reports:
+    name: apranova_reports
+  workspace_data:
+    name: apranova_workspace_data
+

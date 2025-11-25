@@ -1,0 +1,346 @@
+# ============================================
+# ApraNova LMS - Git Ignore Configuration
+# ============================================
+
+# ============================================
+# Python / Django Backend
+# ============================================
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+backend/lib/
+backend/lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+static/
+
+# Django migrations (keep structure, ignore generated files)
+# Uncomment if you want to ignore migrations
+# */migrations/*.py
+# !*/migrations/__init__.py
+
+# Virtual environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+
+# ============================================
+# Node.js / Next.js Frontend
+# ============================================
+
+# Dependencies
+node_modules/
+/.pnp
+.pnp.js
+
+# Testing
+/coverage
+
+# Next.js
+.next/
+out/
+build/
+
+# Production
+/build
+
+# Misc
+.DS_Store
+*.pem
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Local env files
+.env
+.env*.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Vercel
+.vercel
+
+# Typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# ============================================
+# Docker
+# ============================================
+
+# Docker volumes and data
+*.pid
+*.seed
+*.pid.lock
+
+# Docker Compose override files
+docker-compose.override.yml
+
+# ============================================
+# Database
+# ============================================
+
+# PostgreSQL
+*.sql
+*.dump
+*.backup
+
+# Database backups
+backup_*.sql
+backup_*.tar.gz
+backup_*.zip
+
+# ============================================
+# SSL Certificates & Nginx
+# ============================================
+
+# SSL certificates (IMPORTANT: Never commit private keys!)
+certs/
+*.pem
+*.crt
+*.key
+*.csr
+
+# Nginx generated files
+vhost.d/
+html/
+
+# ============================================
+# IDE / Editor
+# ============================================
+
+# VSCode
+.vscode/
+*.code-workspace
+
+# PyCharm
+.idea/
+*.iml
+*.iws
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+.\#*
+
+# ============================================
+# OS Files
+# ============================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.directory
+.Trash-*
+
+# ============================================
+# Reports & Generated Files
+# ============================================
+
+# APROVOVA Reports - Keep structure but ignore generated content
+APROVOVA/*
+!APROVOVA/.gitkeep
+!APROVOVA/README.md
+!APROVOVA/.gitignore
+!APROVOVA/*/
+APROVOVA/*/*.csv
+APROVOVA/*/*.pdf
+APROVOVA/*/*.json
+APROVOVA/*/*.png
+APROVOVA/*/*.jpg
+APROVOVA/*/*/*.csv
+APROVOVA/*/*/*.pdf
+APROVOVA/*/*/*.json
+APROVOVA/*/*/*.png
+APROVOVA/*/*/*.jpg
+
+# ============================================
+# Workspace Containers
+# ============================================
+
+# Student workspace data (Docker volumes handle this)
+backend/workspaces/
+workspaces/
+
+# ============================================
+# Logs
+# ============================================
+
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# ============================================
+# Temporary Files
+# ============================================
+
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+.tmp/
+temp/
+
+# ============================================
+# Archives
+# ============================================
+
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# ============================================
+# Documentation Build (Keep source, ignore build)
+# ============================================
+
+# Jekyll build output
+docs/_site/
+docs/.sass-cache/
+docs/.jekyll-cache/
+docs/.jekyll-metadata
+
+# Bundler
+docs/.bundle/
+docs/vendor/
+
+# ============================================
+# Sensitive Information (CRITICAL!)
+# ============================================
+
+# Environment variables with secrets
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development
+
+# Secret keys
+secrets/
+*.secret
+*.private
+
+# API keys
+api_keys.txt
+credentials.json
+
+# ============================================
+# Project-Specific Temporary Files
+# ============================================
+
+# Setup completion markers (optional - uncomment if needed)
+# SETUP_COMPLETE.md
+# COMPLETED_SETUP.md
+# FINAL_SETUP_SUMMARY.md
+
+# Test results (optional - uncomment if needed)
+# SIGNUP_TEST_RESULTS.md
+# test_results/
+
+# ============================================
+# Keep These Files (Whitelist)
+# ============================================
+
+# Keep example environment files
+!.env.example
+!.env.sample
+
+# Keep documentation
+!README.md
+!docs/**/*.md
+!*.md
+
+# Keep GitHub workflows
+!.github/
+!.github/**/*
+
+# Keep Docker configuration
+!Dockerfile
+!docker-compose.yml
+!docker-compose.*.yml
+!.dockerignore
+

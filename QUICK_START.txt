@@ -1,0 +1,135 @@
+╔══════════════════════════════════════════════════════════════╗
+║           ApraNova LMS - Quick Start Guide                  ║
+╚══════════════════════════════════════════════════════════════╝
+
+📋 PREREQUISITES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✓ Python 3.10+ installed
+✓ Node.js 18+ installed
+✓ PostgreSQL installed and running
+✓ Redis installed and running (optional for development)
+
+🚀 OPTION 1: Run Everything (Recommended)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+This will start both backend and frontend in separate windows:
+
+    .\run-all.ps1
+
+🔧 OPTION 2: Run Separately
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Backend Only:
+    .\run-backend.ps1
+
+Frontend Only (in another terminal):
+    .\run-frontend.ps1
+
+🐳 OPTION 3: Docker (Full Stack)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Run everything with Docker Compose:
+
+    docker-compose up -d
+
+Stop all services:
+    docker-compose down
+
+View logs:
+    docker-compose logs -f
+
+📝 FIRST TIME SETUP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. Copy .env.example to .env:
+   copy .env.example .env
+
+2. Edit .env with your settings:
+   - Database credentials
+   - Stripe keys (for payments)
+   - Email settings
+   - OAuth credentials
+
+3. Create PostgreSQL database:
+   createdb apranova_db
+
+4. Run the setup script (first time only):
+   .\run-backend.ps1
+   (It will create database, run migrations, and create superuser)
+
+🌐 ACCESS URLS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Frontend:       http://localhost:3000
+Backend API:    http://localhost:8000
+Admin Panel:    http://localhost:8000/admin
+API Docs:       http://localhost:8000/api/docs
+Swagger UI:     http://localhost:8000/swagger
+
+👤 DEFAULT CREDENTIALS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+You'll create these during first run:
+- Superuser: (you choose during setup)
+- Test student: Use create_test_user.py script
+
+📦 USEFUL COMMANDS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Backend:
+  cd ApraNova/backend
+  python manage.py makemigrations    # Create migrations
+  python manage.py migrate           # Apply migrations
+  python manage.py createsuperuser   # Create admin user
+  python manage.py runserver         # Start dev server
+
+Frontend:
+  cd ApraNova/frontend
+  npm install                        # Install dependencies
+  npm run dev                        # Start dev server
+  npm run build                      # Build for production
+  npm run start                      # Start production server
+
+🧪 CREATE TEST DATA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Create test student (DP track):
+  cd ApraNova/backend
+  python create_test_user.py
+
+Create test student (FSD track):
+  cd ApraNova/backend
+  python create_fsd_user.py
+
+🔍 TROUBLESHOOTING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Port already in use:
+  - Backend (8000): Change in manage.py runserver 0.0.0.0:8001
+  - Frontend (3000): Change in package.json or use: npm run dev -- -p 3001
+
+Database connection error:
+  - Check PostgreSQL is running
+  - Verify credentials in .env
+  - Create database: createdb apranova_db
+
+Module not found:
+  - Backend: pip install -r requirements.txt
+  - Frontend: npm install
+
+CORS errors:
+  - Check CORS_ALLOWED_ORIGINS in .env
+  - Verify NEXT_PUBLIC_API_URL in frontend/.env.local
+
+📚 DOCUMENTATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+- Architecture: ARCHITECTURE_FIXES.md
+- Curriculum: CURRICULUM_SPECIFICATIONS.md
+- Dashboard: STUDENT_DASHBOARD_FLOW.md
+- Payment: PAYMENT_FIRST_FLOW_COMPLETE.md
+- Stripe: STRIPE_INTEGRATION_COMPLETE.md
+
+🆘 NEED HELP?
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Check the logs:
+  - Backend: Terminal output
+  - Frontend: Terminal output + Browser console
+  - Docker: docker-compose logs -f
+
+Common issues are documented in TROUBLESHOOTING.md
+
+Happy coding! 🎉

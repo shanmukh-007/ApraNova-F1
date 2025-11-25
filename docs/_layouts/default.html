@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page.title }} - {{ site.title }}</title>
+    <meta name="description" content="{{ page.description | default: site.description }}">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ '/assets/images/favicon.png' | relative_url }}">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+    <link rel="stylesheet" href="{{ '/assets/css/custom.css' | relative_url }}">
+    
+    <!-- Mermaid for diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Find all code blocks that contain mermaid diagrams
+            // Check multiple selectors to catch all variations
+            const selectors = [
+                'pre code.language-mermaid',
+                'pre code[class*="mermaid"]',
+                'code.language-mermaid',
+                'pre:has(code:contains("sequenceDiagram"))',
+                'pre:has(code:contains("graph "))',
+                'pre:has(code:contains("stateDiagram"))',
+                'pre:has(code:contains("erDiagram"))'
+            ];
+
+            // Convert all code blocks containing mermaid syntax
+            document.querySelectorAll('pre').forEach(function(pre) {
+                const code = pre.querySelector('code');
+                if (!code) return;
+
+                const text = code.textContent.trim();
+
+                // Check if this looks like a mermaid diagram
+                const isMermaid = text.startsWith('sequenceDiagram') ||
+                                text.startsWith('graph ') ||
+                                text.startsWith('stateDiagram') ||
+                                text.startsWith('erDiagram') ||
+                                text.startsWith('flowchart') ||
+                                code.className.includes('mermaid');
+
+                if (isMermaid) {
+                    const mermaidDiv = document.createElement('div');
+                    mermaidDiv.className = 'mermaid';
+                    mermaidDiv.textContent = text;
+                    pre.parentElement.replaceChild(mermaidDiv, pre);
+                }
+            });
+
+            // Initialize Mermaid with dark purple theme
+            mermaid.initialize({
+                startOnLoad: true,
+                theme: 'dark',
+                themeVariables: {
+                    darkMode: true,
+                    background: '#1e3a5f',
+                    primaryColor: '#9b4dca',
+                    primaryTextColor: '#fff',
+                    primaryBorderColor: '#7b3da6',
+                    lineColor: '#9b4dca',
+                    secondaryColor: '#1e3a5f',
+                    tertiaryColor: '#61dafb',
+                    mainBkg: '#1e3a5f',
+                    secondBkg: '#9b4dca',
+                    mainContrastColor: '#fff',
+                    darkTextColor: '#fff',
+                    border1: '#7b3da6',
+                    border2: '#61dafb',
+                    arrowheadColor: '#9b4dca',
+                    fontFamily: 'arial',
+                    fontSize: '16px',
+                    labelBackground: '#1e3a5f',
+                    textColor: '#fff',
+                    THEME_COLOR_LIMIT: 12
+                }
+            });
+
+            // Render all mermaid diagrams
+            mermaid.run();
+        });
+    </script>
+    
+    <!-- Syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="page-header">
+        <div class="header-content">
+            <h1 class="project-name">
+                <a href="{{ '/' | relative_url }}">{{ site.title }}</a>
+            </h1>
+            <h2 class="project-tagline">{{ site.description }}</h2>
+            
+            <!-- Navigation -->
+            <nav class="main-nav">
+                <a href="{{ '/index.html' | relative_url }}" class="btn">Home</a>
+                <a href="{{ '/architecture.html' | relative_url }}" class="btn">Architecture</a>
+                <a href="{{ '/auth-flow.html' | relative_url }}" class="btn">Auth Flow</a>
+                <a href="{{ '/workspace-flow.html' | relative_url }}" class="btn">Workspace</a>
+                <a href="{{ '/api-documentation.html' | relative_url }}" class="btn">API Docs</a>
+                <a href="{{ '/database-schema.html' | relative_url }}" class="btn">Database</a>
+            </nav>
+            
+            <!-- GitHub Link -->
+            {% if site.github.repository_url %}
+            <a href="{{ site.github.repository_url }}" class="btn btn-github">
+                <i class="fab fa-github"></i> View on GitHub
+            </a>
+            {% endif %}
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="content-wrapper">
+            {{ content }}
+        </div>
+        
+        <!-- Table of Contents (if page has headings) -->
+        <aside class="toc-sidebar">
+            <div class="toc-container">
+                <h3>On This Page</h3>
+                <div id="toc"></div>
+            </div>
+        </aside>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-content">
+            <p>
+                <strong>{{ site.title }}</strong> - 
+                Built with <i class="fas fa-heart" style="color: #e74c3c;"></i> using Django, Next.js, and Docker
+            </p>
+            <p>
+                <a href="{{ site.github.repository_url }}">
+                    <i class="fab fa-github"></i> GitHub
+                </a> | 
+                <a href="mailto:support@apranova.com">
+                    <i class="fas fa-envelope"></i> Contact
+                </a> | 
+                <a href="{{ '/index.html' | relative_url }}">
+                    <i class="fas fa-book"></i> Documentation
+                </a>
+            </p>
+            <p class="copyright">
+                &copy; {{ 'now' | date: "%Y" }} ApraNova. Licensed under MIT License.
+            </p>
+        </div>
+    </footer>
+
+    <!-- Table of Contents Generator -->
+    <script>
+        // Generate table of contents from headings
+        document.addEventListener('DOMContentLoaded', function() {
+            const content = document.querySelector('.content-wrapper');
+            const toc = document.getElementById('toc');
+            
+            if (!content || !toc) return;
+            
+            const headings = content.querySelectorAll('h2, h3');
+            if (headings.length === 0) {
+                document.querySelector('.toc-sidebar').style.display = 'none';
+                return;
+            }
+            
+            const tocList = document.createElement('ul');
+            tocList.className = 'toc-list';
+            
+            headings.forEach((heading, index) => {
+                // Add ID to heading if it doesn't have one
+                if (!heading.id) {
+                    heading.id = 'heading-' + index;
+                }
+                
+                const li = document.createElement('li');
+                li.className = heading.tagName.toLowerCase();
+                
+                const a = document.createElement('a');
+                a.href = '#' + heading.id;
+                a.textContent = heading.textContent.replace(/^[#\s]+/, '');
+                
+                li.appendChild(a);
+                tocList.appendChild(li);
+            });
+            
+            toc.appendChild(tocList);
+            
+            // Smooth scroll
+            document.querySelectorAll('.toc-list a').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                });
+            });
+        });
+    </script>
+
+    <!-- Back to top button -->
+    <button id="back-to-top" title="Back to top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <script>
+        // Back to top button
+        const backToTop = document.getElementById('back-to-top');
+        
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                backToTop.classList.add('show');
+            } else {
+                backToTop.classList.remove('show');
+            }
+        });
+        
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    </script>
+</body>
+</html>
+

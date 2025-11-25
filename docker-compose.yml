@@ -1,0 +1,272 @@
+services:
+  # ============================================
+  # Backend - Django REST API
+  # ============================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: apranova_backend
+    restart: unless-stopped
+    volumes:
+      - ./backend:/app
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+      - aprovova_reports:/app/APROVOVA
+      - /var/run/docker.sock:/var/run/docker.sock  # Enable Docker-in-Docker for workspace provisioning
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${DB_HOST}:${DB_PORT}/${POSTGRES_DB}
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/0
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - apranova_network
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ============================================
+  # Frontend - Next.js Application
+  # ============================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: apranova_frontend
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      # Set NEXT_PUBLIC_API_URL for client-side API calls
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+      - NEXT_PUBLIC_APP_NAME=ApraNova
+      - NEXT_PUBLIC_APP_URL=http://localhost:3000
+      # Backend URL for Next.js server-side rewrites
+      - BACKEND_URL=http://backend:8000
+    depends_on:
+      - backend
+    networks:
+      - apranova_network
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ============================================
+  # Database - PostgreSQL
+  # ============================================
+  db:
+    image: postgres:14-alpine
+    container_name: apranova_db
+    restart: unless-stopped
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - apranova_network
+    ports:
+      - "5433:5432"  # Changed to 5433 to avoid conflict
+
+  # ============================================
+  # Cache - Redis
+  # ============================================
+  redis:
+    image: redis:7-alpine
+    container_name: apranova_redis
+    restart: unless-stopped
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - redis_data:/data
+    networks:
+      - apranova_network
+    ports:
+      - "6380:6379"  # Changed to 6380 to avoid potential conflicts
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================
+  # Code Server - VS Code IDE (for Full Stack Development track)
+  # ============================================
+  code-server:
+    image: codercom/code-server:latest
+    container_name: apranova_code_server
+    restart: unless-stopped
+    user: "1000:1000"
+    environment:
+      - PASSWORD=${CODE_SERVER_PASSWORD:-password123}
+    ports:
+      - "8080:8080"
+    volumes:
+      - code_server_data:/home/coder/project
+    networks:
+      - apranova_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ============================================
+  # Jupyter Notebook - Data Analysis (for Data Professional track)
+  # ============================================
+  jupyter:
+    image: jupyter/scipy-notebook:latest
+    container_name: apranova_jupyter
+    restart: unless-stopped
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+      - GRANT_SUDO=yes
+    ports:
+      - "8888:8888"
+    volumes:
+      - jupyter_data:/home/jovyan/work
+    networks:
+      - apranova_network
+    command: start-notebook.sh --NotebookApp.token='' --NotebookApp.password=''
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8888/api"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ============================================
+  # Prefect - Workflow Orchestration (for Data Professional track - Project 2)
+  # ============================================
+  prefect:
+    image: prefecthq/prefect:2-latest
+    container_name: apranova_prefect
+    restart: unless-stopped
+    environment:
+      - PREFECT_API_URL=http://localhost:4200/api
+      - PREFECT_SERVER_API_HOST=0.0.0.0
+    ports:
+      - "4200:4200"
+    volumes:
+      - prefect_data:/root/.prefect
+    networks:
+      - apranova_network
+    command: prefect server start --host 0.0.0.0
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4200/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ============================================
+  # Apache Superset - Data Analytics (for Data Professional track)
+  # ============================================
+  superset:
+    image: apache/superset:latest
+    container_name: apranova_superset
+    restart: unless-stopped
+    environment:
+      - SUPERSET_SECRET_KEY=${SUPERSET_SECRET_KEY}
+      - SUPERSET_LOAD_EXAMPLES=yes
+      - DATABASE_DIALECT=postgresql
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
+      - DATABASE_DB=${POSTGRES_DB}
+      - DATABASE_USER=${POSTGRES_USER}
+      - DATABASE_PASSWORD=${POSTGRES_PASSWORD}
+    ports:
+      - "8088:8088"
+    volumes:
+      - superset_home:/app/superset_home
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - apranova_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8088/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    command: >
+      sh -c "
+      superset db upgrade &&
+      superset fab create-admin --username admin --firstname Admin --lastname User --email admin@apranova.com --password admin &&
+      superset init &&
+      superset run -h 0.0.0.0 -p 8088 --with-threads --reload --debugger
+      "
+
+  # ============================================
+  # Reverse Proxy - Nginx (Production)
+  # ============================================
+  nginx:
+    image: nginx:alpine
+    container_name: apranova_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - static_volume:/app/staticfiles:ro
+      - media_volume:/app/media:ro
+      - ./certs:/etc/nginx/certs:ro
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - apranova_network
+    profiles:
+      - production
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  static_volume:
+    driver: local
+  media_volume:
+    driver: local
+  aprovova_reports:
+    driver: local
+  jupyter_data:
+    driver: local
+  superset_home:
+    driver: local
+  code_server_data:
+    driver: local
+  code_server_config:
+    driver: local
+  prefect_data:
+    driver: local
+
+networks:
+  apranova_network:
+    driver: bridge
+

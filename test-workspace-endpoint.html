@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Workspace Endpoint</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .error {
+            background: #ffebee;
+            color: #c62828;
+        }
+        .success {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Workspace Endpoint</h1>
+    
+    <div class="section">
+        <h2>Step 1: Login</h2>
+        <input type="email" id="email" placeholder="Email" value="test@example.com">
+        <input type="password" id="password" placeholder="Password" value="password">
+        <button onclick="login()">Login</button>
+        <div id="loginResult" class="result" style="display:none;"></div>
+    </div>
+    
+    <div class="section">
+        <h2>Step 2: Test Workspace API</h2>
+        <button onclick="testWorkspace()">Test Workspace Endpoint</button>
+        <div id="workspaceResult" class="result" style="display:none;"></div>
+    </div>
+    
+    <div class="section">
+        <h2>Step 3: Open Superset</h2>
+        <button onclick="openSuperset()">Open Superset</button>
+        <div id="supersetResult" class="result" style="display:none;"></div>
+    </div>
+
+    <script>
+        let accessToken = '';
+        const API_URL = 'http://localhost:8000';
+
+        async function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const resultDiv = document.getElementById('loginResult');
+            
+            try {
+                const response = await fetch(`${API_URL}/users/login/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                resultDiv.style.display = 'block';
+                
+                if (response.ok) {
+                    accessToken = data.access;
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = 'Login successful!\n' + JSON.stringify(data, null, 2);
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = 'Login failed:\n' + JSON.stringify(data, null, 2);
+                }
+            } catch (error) {
+                resultDiv.style.display = 'block';
+                resultDiv.className = 'result error';
+                resultDiv.textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function testWorkspace() {
+            const resultDiv = document.getElementById('workspaceResult');
+            
+            if (!accessToken) {
+                resultDiv.style.display = 'block';
+                resultDiv.className = 'result error';
+                resultDiv.textContent = 'Please login first!';
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_URL}/users/workspace/create/`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                const data = await response.json();
+                resultDiv.style.display = 'block';
+                
+                if (response.ok) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = 'Workspace API Response:\n' + JSON.stringify(data, null, 2);
+                    
+                    // Store the URL for opening
+                    window.workspaceUrl = data.url;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = 'API Error:\n' + JSON.stringify(data, null, 2);
+                }
+            } catch (error) {
+                resultDiv.style.display = 'block';
+                resultDiv.className = 'result error';
+                resultDiv.textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function openSuperset() {
+            const resultDiv = document.getElementById('supersetResult');
+            
+            const url = window.workspaceUrl || 'http://localhost:8088';
+            
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result success';
+            resultDiv.textContent = 'Opening: ' + url;
+            
+            // Open in new tab
+            window.open(url, '_blank', 'noopener,noreferrer');
+        }
+    </script>
+</body>
+</html>
