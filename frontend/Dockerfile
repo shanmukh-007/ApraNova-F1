@@ -43,10 +43,16 @@ COPY . .
 # Set environment variables for build
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
-# Set default values for public env vars (can be overridden at runtime)
-ENV NEXT_PUBLIC_API_URL=http://localhost:8000
-ENV NEXT_PUBLIC_APP_NAME=ApraNova
-ENV NEXT_PUBLIC_APP_URL=http://localhost:3000
+
+# Build arguments for public env vars
+ARG NEXT_PUBLIC_API_URL=http://localhost:8000
+ARG NEXT_PUBLIC_APP_NAME=ApraNova
+ARG NEXT_PUBLIC_APP_URL=http://localhost:3000
+
+# Set as environment variables
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_APP_NAME=$NEXT_PUBLIC_APP_NAME
+ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
 
 # Build the application
 RUN \
